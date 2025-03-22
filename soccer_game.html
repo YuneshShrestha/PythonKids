@@ -13,6 +13,23 @@
         button:hover { background-color: #ff6347; }
         h1 { color: #ff4500; }
         p { color: #4682b4; }
+        #congratsPopup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ff4500;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 24px;
+            animation: popup 1s ease-in-out;
+        }
+        @keyframes popup {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -28,6 +45,7 @@ ballY += steps / 2  # Move down
     <button id="runButton" onclick="runPythonCode()">Run Code</button>
     <canvas id="gameCanvas" width="600" height="400"></canvas>
     <p id="message"></p>
+    <div id="congratsPopup">Goal! You win!</div>
 
     <script>
         let ballX = 50, ballY = 100;
@@ -58,6 +76,7 @@ ballY += steps / 2  # Move down
                 // Check if goal is reached
                 if (ballX >= goalX && ballY >= goalY && ballY <= goalY + 100) {
                     message = "Goal! You win!";
+                    showCongratsPopup();
                 } else {
                     message = "Ball moved! Try to reach the goal!";
                 }
@@ -82,6 +101,14 @@ ballY += steps / 2  # Move down
             ctx.arc(ballX, ballY, 15, 0, Math.PI * 2);
             ctx.fill();
             document.getElementById("message").innerText = message;
+        }
+
+        function showCongratsPopup() {
+            const popup = document.getElementById("congratsPopup");
+            popup.style.display = "block";
+            setTimeout(() => {
+                popup.style.display = "none";
+            }, 3000);
         }
 
         drawGame();
