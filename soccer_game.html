@@ -25,7 +25,7 @@ ballX += steps  # Move right
 ballY += steps / 2  # Move down
     </pre>
     <textarea id="codeInput" placeholder="Write your Python code here..."></textarea><br>
-    <button onclick="runPythonCode()">Run Code</button>
+    <button id="runButton" onclick="runPythonCode()">Run Code</button>
     <canvas id="gameCanvas" width="600" height="400"></canvas>
     <p id="message"></p>
 
@@ -36,6 +36,9 @@ ballY += steps / 2  # Move down
 
         async function runPythonCode() {
             let code = document.getElementById("codeInput").value;
+            let runButton = document.getElementById("runButton");
+            runButton.innerText = "Running...";
+            runButton.disabled = true;
 
             try {
                 // Load Pyodide
@@ -60,6 +63,9 @@ ballY += steps / 2  # Move down
                 }
             } catch (error) {
                 message = "Error in code: " + error.message;
+            } finally {
+                runButton.innerText = "Run Code";
+                runButton.disabled = false;
             }
             drawGame();
         }
