@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logic Gate Light Bulbs</title>
+    <style>
+        body { 
+            text-align: center; 
+            font-family: 'Comic Sans MS', cursive, sans-serif; 
+            background-color: #f0f8ff; 
+            color: #333; 
+        }
+        h2 {
+            color: #ff4500;
+        }
+        .circuit { 
+            display: flex; 
+            justify-content: center; 
+            gap: 50px; 
+            margin-top: 20px; 
+            flex-wrap: wrap; 
+        }
+        .gate { 
+            text-align: center; 
+            border: 2px dashed #ff4500; 
+            padding: 20px; 
+            border-radius: 10px; 
+            background-color: #fffacd; 
+        }
+        .bulb { 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 50%; 
+            background-color: gray; 
+            margin: 10px auto; 
+            transition: background-color 0.3s, box-shadow 0.3s; 
+        }
+        .on { 
+            background-color: yellow; 
+            box-shadow: 0 0 20px yellow; 
+        }
+        label {
+            display: block;
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+        input[type="checkbox"] {
+            transform: scale(1.5);
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body onload="updateLights()"></body>
+    <h2>Logic Gate Light Bulb Visualizer</h2>
+    <label>Switch 1 <input type="checkbox" id="switch1" onchange="updateLights()"></label>
+    <label>Switch 2 <input type="checkbox" id="switch2" onchange="updateLights()"></label>
+    
+    <div class="circuit">
+        <div class="gate">
+            <h3>AND Gate</h3>
+            <div class="bulb" id="andBulb"></div>
+        </div>
+        <div class="gate">
+            <h3>OR Gate</h3>
+            <div class="bulb" id="orBulb"></div>
+        </div>
+    </div>
+    
+    <label>Switch 3 <input type="checkbox" id="switch3" onchange="updateLights()"></label>
+    
+    <div class="circuit">
+        <div class="gate">
+            <h3>NOT Gate (Switch 3)</h3>
+            <div class="bulb" id="notBulb3"></div>
+        </div>
+    </div>
+    
+    <script>
+        function updateLights() {
+            let switch1 = document.getElementById('switch1').checked;
+            let switch2 = document.getElementById('switch2').checked;
+            let switch3 = document.getElementById('switch3').checked;
+            
+            // AND Gate: Both switches ON
+            document.getElementById('andBulb').classList.toggle('on', switch1 && switch2);
+            
+            // OR Gate: At least one switch ON
+            document.getElementById('orBulb').classList.toggle('on', switch1 || switch2);
+            
+            // NOT Gate (Switch 3): Opposite of Switch 3
+            document.getElementById('notBulb3').classList.toggle('on', !switch3);
+        }
+    </script>
+</body>
+</html>

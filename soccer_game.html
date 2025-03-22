@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Game - Learn Python</title>
+    <style>
+        body { text-align: center; font-family: 'Comic Sans MS', cursive, sans-serif; background-color: #f0f8ff; }
+        canvas { background: #98fb98; border: 5px solid #ff4500; display: block; margin: 20px auto; }
+        textarea { width: 80%; height: 100px; font-size: 16px; border: 2px solid #ff4500; border-radius: 10px; }
+        button { padding: 10px 20px; font-size: 16px; margin-top: 10px; background-color: #ff4500; color: white; border: none; border-radius: 10px; cursor: pointer; }
+        button:hover { background-color: #ff6347; }
+        h1 { color: #ff4500; }
+        p { color: #4682b4; }
+    </style>
+</head>
+<body>
+    <h1>Soccer Game - Learn Python Coding!</h1>
+    <p>Write Python code using variables, operators, and data types to move the ball.</p>
+    <pre style="background-color: #fffacd; padding: 10px; border-radius: 10px;">
+# Example:
+steps = 50  # Variable (Number)
+ballX += steps  # Move right
+ballY += steps / 2  # Move down
+    </pre>
+    <textarea id="codeInput" placeholder="Write your Python code here..."></textarea><br>
+    <button onclick="runCode()">Run Code</button>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <p id="message"></p>
+    
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let ballX = 50, ballY = 100;
+        let goalX = 550, goalY = 150;
+        let message = "";
+
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "yellow";
+            ctx.fillRect(goalX, goalY, 40, 100);
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, 15, 0, Math.PI * 2);
+            ctx.fill();
+            document.getElementById("message").innerText = message;
+        }
+
+        function runCode() {
+            let code = document.getElementById("codeInput").value;
+            try {
+                // Directly evaluate the code as JavaScript expressions
+                eval(code);
+                if (ballX >= goalX && ballY >= goalY && ballY <= goalY + 100) {
+                    message = "Goal! You win!";
+                    // alert("Goal! You win!");
+                   
+                } else {
+                    message = "Ball moved! Try to reach the goal!";
+                }
+            } catch (error) {
+                message = "Error in code: " + error.message;
+            }
+            drawGame();
+        }
+
+        drawGame();
+    </script>
+</body>
+</html>
