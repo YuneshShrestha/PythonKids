@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Memory - Toy Box Analogy</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { color: #4682b4; margin-bottom: 10px; }
+        h2 { color: #ff6347; margin-bottom: 10px; }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .explanation {
+            background-color: #e0f7fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px auto;
+            text-align: left;
+        }
+        canvas {
+            background: white;
+            border: 3px solid #4682b4;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: block;
+        }
+        textarea {
+            width: 90%;
+            height: 120px;
+            font-size: 16px;
+            border: 2px solid #4682b4;
+            border-radius: 10px;
+            padding: 10px;
+            font-family: monospace;
+            resize: vertical;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px 5px;
+            background-color: #4682b4;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover { background-color: #5f9ea0; }
+        .button-reset { background-color: #ff6347; }
+        .button-reset:hover { background-color: #ff7f50; }
+        .button-hint { background-color: #3cb371; }
+        .button-hint:hover { background-color: #2e8b57; }
+        .message-box {
+            background-color: #fffacd;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px auto;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .toy {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            position: absolute;
+        }
+       
+        .highlight {
+            background-color: #ffff99;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        #success-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+        }
+        .modal-content {
+            position: relative;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 500px;
+            text-align: center;
+            animation: modal-appear 0.5s ease-out;
+        }
+        @keyframes modal-appear {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        .close-modal {
+            background-color: #4682b4;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            animation: fall 3s linear forwards;
+        }
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧸 Python Memory: The Toy Box Analogy 🧸</h1>
+        
+        <div class="explanation">
+            <h3>Understanding Python Object References</h3>
+            <p>In Python, variables don't contain values directly - they're like labels that point to toy boxes that contain the values!</p>
+            <ul>
+                <li><strong>When you create <code>a = [1, 2, 3]</code></strong> - You're creating a toy box with toys 1, 2, and 3</li>
+                <li><strong>When you assign <code>b = a</code></strong> - You're giving the same toy box another name (B)</li>
+                <li><strong>When you create <code>c = [1, 2, 3]</code></strong> - You're creating a new toy box with the same toys</li>
+                <li><strong>Use <code>is</code> to check if it's the same box</strong> - <code>a is b</code> is True, <code>a is c</code> is False</li>
+                <li><strong>Use <code>==</code> to check if boxes contain the same toys</strong> - <code>a == c</code> is True because they have the same values</li>
+            </ul>
+        </div>
+        
+        <h2>Experiment with the Toy Boxes!</h2>
+        <canvas id="toyCanvas" width="750" height="400"></canvas>
+        
+        <div class="message-box" id="messageBox">
+            Try editing the code and click "Run Code" to see what happens!
+        </div>
+        
+        <textarea id="codeInput">a = [1, 2, 3]     # Create a toy box A with toys 1, 2, 3
+b = a             # B is the same toy box as A
+c = [1, 2, 3]     # C is a different toy box with the same toys
+
+# Let's check if toy boxes are the same or have the same toys
+print("a is b:", a is b)      # Is it the same toy box?
+print("a is c:", a is c)      # Is it the same toy box?
+print("a == c:", a == c)      # Do they have the same toys?
+
+# Try changing the toys in box A
+a[0] = 99         # Change the first toy in box A
+
+# Let's see what happens to the toys in box B and C
+print("Box A toys:", a)
+print("Box B toys:", b)
+print("Box C toys:", c)</textarea>
+        
+        <div>
+            <button id="runButton" onclick="runPythonCode()">Run Code</button>
+            <button class="button-hint" onclick="showHint()">Get Hint</button>
+            <button class="button-reset" onclick="resetCode()">Reset Code</button>
+        </div>
+        
+       
+    </div>
+    
+    <div id="success-modal">
+        <div class="modal-content">
+            <h2>Amazing! 🎉</h2>
+            <p>You've successfully understood how Python object references work!</p>
+            <p>Remember:</p>
+            <ul style="text-align: left;">
+                <li><code>is</code> checks if two variables point to the same memory location (toy box)</li>
+                <li><code>==</code> checks if two variables have the same values (toys inside)</li>
+            </ul>
+            <button class="close-modal" onclick="closeModal()">Continue Learning</button>
+        </div>
+    </div>
+
+    <script>
+        // Initial Python code
+        const initialCode = `a = [1, 2, 3]     # Create a toy box A with toys 1, 2, 3
+b = a             # B is the same toy box as A
+c = [1, 2, 3]     # C is a different toy box with the same toys
+
+# Let's check if toy boxes are the same or have the same toys
+print("a is b:", a is b)      # Is it the same toy box?
+print("a is c:", a is c)      # Is it the same toy box?
+print("a == c:", a == c)      # Do they have the same toys?
+
+# Try changing the toys in box A
+a[0] = 99         # Change the first toy in box A
+
+# Let's see what happens to the toys in box B and C
+print("Box A toys:", a)
+print("Box B toys:", b)
+print("Box C toys:", c)`;
+
+        // Toy colors
+        const toyColors = ["#ff4500", "#4682b4", "#3cb371"];
+        
+        // Box positions and labels
+        const boxes = [
+            { x: 100, y: 120, width: 120, height: 120, label: "Box A", toys: [1, 2, 3] },
+            { x: 320, y: 120, width: 120, height: 120, label: "Box B", toys: [1, 2, 3] },
+            { x: 540, y: 120, width: 120, height: 120, label: "Box C", toys: [1, 2, 3] }
+        ];
+        
+        // Animation properties
+        let animationId = null;
+        let toyPositions = [];
+        let arrowPoints = [];
+        
+        function initializeToys() {
+            toyPositions = [];
+            boxes.forEach((box, boxIndex) => {
+                box.toys.forEach((toy, toyIndex) => {
+                    toyPositions.push({
+                        x: box.x + 30 + toyIndex * 30,
+                        y: box.y + 60,
+                        value: toy,
+                        color: toyColors[toyIndex % toyColors.length],
+                        boxIndex: boxIndex
+                    });
+                });
+            });
+        }
+        
+        function initializeArrows() {
+            arrowPoints = [
+                // Arrow from Box B to Box A (indicating same reference)
+                { startX: 320, startY: 180, endX: 220, endY: 180, color: "#ff6347", width: 2 }
+            ];
+        }
+        
+        function drawBoxes() {
+            const canvas = document.getElementById("toyCanvas");
+            const ctx = canvas.getContext("2d");
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background pattern
+            ctx.fillStyle = "#f9f9f9";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw boxes
+            boxes.forEach((box, index) => {
+                // Draw box shadow
+                ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+                ctx.fillRect(box.x + 5, box.y + 5, box.width, box.height);
+                
+                // Draw box
+                ctx.fillStyle = "#deb887";
+                ctx.fillRect(box.x, box.y, box.width, box.height);
+                
+                // Draw box border
+                ctx.strokeStyle = "#8b4513";
+                ctx.lineWidth = 3;
+                ctx.strokeRect(box.x, box.y, box.width, box.height);
+                
+                // Draw box label
+                ctx.fillStyle = "#8b4513";
+                ctx.font = "bold 20px Comic Sans MS";
+                ctx.fillText(box.label, box.x + 30, box.y - 10);
+                
+                // Draw memory address (to illustrate same/different locations)
+                const memAddress = index === 1 ? "0x1234" : "0x" + (1234 + index * 1000).toString();
+                ctx.fillStyle = "#555";
+                ctx.font = "14px monospace";
+                ctx.fillText(memAddress, box.x + 20, box.y + 25);
+            });
+            
+            // Draw arrows
+            arrowPoints.forEach(arrow => {
+                drawArrow(ctx, arrow.startX, arrow.startY, arrow.endX, arrow.endY, arrow.color, arrow.width);
+            });
+            
+            // Draw toys
+            toyPositions.forEach(toy => {
+                drawToy(ctx, toy.x, toy.y, toy.value, toy.color);
+            });
+            
+            // Draw comparison results
+            const comparisonResults = [
+                { text: "a is b: True", x: 240, y: 300, highlight: true },
+                { text: "a is c: False", x: 240, y: 330, highlight: false },
+                { text: "a == c: True*", x: 240, y: 360, highlight: false }
+            ];
+            
+            const toyA = toyPositions.filter(t => t.boxIndex === 0);
+            const toyC = toyPositions.filter(t => t.boxIndex === 2);
+            const isSameValues = toyA.every((t, i) => t.value === toyC[i].value);
+            
+            comparisonResults[2].text = `a == c: ${isSameValues}`;
+            comparisonResults[2].highlight = isSameValues;
+            
+            ctx.font = "18px Comic Sans MS";
+            comparisonResults.forEach(result => {
+                if (result.highlight) {
+                    // Draw highlighted background
+                    ctx.fillStyle = "#ffff99";
+                    const width = ctx.measureText(result.text).width + 10;
+                    ctx.fillRect(result.x - 5, result.y - 16, width, 22);
+                }
+                
+                ctx.fillStyle = "#333";
+                ctx.fillText(result.text, result.x, result.y);
+            });
+            
+            // Draw notes about the current state
+            ctx.fillStyle = "#4682b4";
+            ctx.font = "16px Comic Sans MS";
+            ctx.fillText("Box B shares the same memory location as Box A", 400, 300);
+            ctx.fillText("Box C is a different box, even with the same toys", 400, 330);
+            
+            if (toyA[0].value !== 1 || toyA[1].value !== 2 || toyA[2].value !== 3) {
+                ctx.fillStyle = "#ff6347";
+                ctx.fillText("Notice: When we change Box A, Box B changes too!", 400, 360);
+                ctx.fillText("But Box C stays the same!", 400, 380);
+            }
+        }
+        
+        function drawToy(ctx, x, y, value, color) {
+            // Draw toy circle
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Draw toy value
+            ctx.fillStyle = "white";
+            ctx.font = "bold 14px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(value.toString(), x, y);
+            ctx.textAlign = "start";
+            ctx.textBaseline = "alphabetic";
+        }
+        
+        function drawArrow(ctx, fromX, fromY, toX, toY, color = "black", width = 2) {
+            const headLen = 15;
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+            
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.stroke();
+            
+            // Arrow head
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headLen * Math.cos(angle - Math.PI / 6), toY - headLen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headLen * Math.cos(angle + Math.PI / 6), toY - headLen * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+        
+        function updateBoxes(a, b, c) {
+            // Update box contents based on Python values
+            boxes[0].toys = [...a];
+            boxes[1].toys = [...b];
+            boxes[2].toys = [...c];
+            
+            // Recreate toy positions
+            toyPositions = [];
+            boxes.forEach((box, boxIndex) => {
+                box.toys.forEach((toy, toyIndex) => {
+                    toyPositions.push({
+                        x: box.x + 30 + toyIndex * 30,
+                        y: box.y + 60,
+                        value: toy,
+                        color: toyColors[toyIndex % toyColors.length],
+                        boxIndex: boxIndex
+                    });
+                });
+            });
+            
+            // Redraw everything
+            drawBoxes();
+        }
+        
+        function showMessage(message, isSuccess = false) {
+            const msgBox = document.getElementById("messageBox");
+            msgBox.textContent = message;
+            msgBox.style.backgroundColor = isSuccess ? "#d4edda" : "#fffacd";
+            msgBox.style.color = isSuccess ? "#155724" : "#856404";
+        }
+        
+        function resetCode() {
+            document.getElementById("codeInput").value = initialCode;
+            boxes[0].toys = [1, 2, 3];
+            boxes[1].toys = [1, 2, 3];
+            boxes[2].toys = [1, 2, 3];
+            initializeToys();
+            drawBoxes();
+            showMessage("Code reset to initial state!");
+        }
+        
+        function showHint() {
+            const hints = [
+                "Try changing the first toy in box A with: a[0] = 99",
+                "See if changing box A affects box B and box C",
+                "Try creating a new list for A with: a = [7, 8, 9]",
+                "Check if B still points to the old box after changing A's reference"
+            ];
+            const randomHint = hints[Math.floor(Math.random() * hints.length)];
+            showMessage("Hint: " + randomHint);
+        }
+        
+        function showSuccessModal() {
+            const modal = document.getElementById("success-modal");
+            modal.style.display = "block";
+            
+            // Create confetti effect
+            for (let i = 0; i < 50; i++) {
+                createConfetti();
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById("success-modal").style.display = "none";
+        }
+        
+        function createConfetti() {
+            const confetti = document.createElement("div");
+            confetti.classList.add("confetti");
+            confetti.style.left = Math.random() * 100 + "vw";
+            confetti.style.backgroundColor = toyColors[Math.floor(Math.random() * toyColors.length)];
+            document.body.appendChild(confetti);
+            
+            // Remove confetti after animation ends
+            setTimeout(() => {
+                confetti.remove();
+            }, 3000);
+        }
+        
+        async function runPythonCode() {
+            const code = document.getElementById("codeInput").value;
+            const runButton = document.getElementById("runButton");
+            
+            // Disable button during execution
+            runButton.disabled = true;
+            runButton.textContent = "Running...";
+            
+            try {
+                // Load Pyodide
+                let pyodide = await loadPyodide();
+                
+                // Redirect print output
+                let output = "";
+                pyodide.globals.set("print_output", output);
+                
+                // Override print function
+                await pyodide.runPythonAsync(`
+                import sys
+                from io import StringIO
+                
+                class CaptureOutput:
+                    def __init__(self):
+                        self.output = ""
+                    
+                    def write(self, text):
+                        self.output += text
+                    
+                    def flush(self):
+                        pass
+                
+                sys.stdout = CaptureOutput()
+                `);
+                
+                // Run user's code
+                await pyodide.runPythonAsync(code);
+                
+                // Get the output
+                output = await pyodide.runPythonAsync(`sys.stdout.output`);
+                
+                // Get the values of a, b, c
+                let a, b, c;
+                try {
+                    a = await pyodide.runPythonAsync("a");
+                    b = await pyodide.runPythonAsync("b");
+                    c = await pyodide.runPythonAsync("c");
+                    
+                    // Convert to JavaScript arrays if they're lists
+                    a = Array.isArray(a) ? a : (typeof a === "object" ? [a] : [a]);
+                    b = Array.isArray(b) ? b : (typeof b === "object" ? [b] : [b]);
+                    c = Array.isArray(c) ? c : (typeof c === "object" ? [c] : [c]);
+                    console.log(a[0], b[0], c[0]);
+                    
+                    // Update visualization
+                    updateBoxes(a, b, c);
+                    
+                    // Display output
+                    showMessage("Output:\n" + output, true);
+                    
+                    // Check if the user demonstrated understanding
+                    if (code.includes("a[0] =") && !output.includes("Error") && 
+                        (a[0] !== 1 && b[0] === a[0] && c[0] === 1)) {
+                        // Show success modal after a short delay
+                        setTimeout(showSuccessModal, a000);
+                    }
+                } catch (err) {
+                    showMessage("Error: Could not access variables a, b, or c. Make sure they're defined in your code.");
+                }
+                
+            } catch (error) {
+                showMessage("Error: " + error.message);
+            } finally {
+                // Re-enable button
+                runButton.disabled = false;
+                runButton.textContent = "Run Code";
+            }
+        }
+        
+        // Initialize
+        function init() {
+            initializeToys();
+            initializeArrows();
+            drawBoxes();
+        }
+        
+        // Call init when page loads
+        window.onload = init;
+    </script>
+</body>
+</html>
