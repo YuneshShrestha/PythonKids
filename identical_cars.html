@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Kids-Identical Cars</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <style>
+        body { text-align: center; font-family: 'Comic Sans MS', cursive, sans-serif; background-color: #f0f8ff; }
+        canvas { background: #98fb98; border: 5px solid #ff4500; display: block; margin: 20px auto; }
+        textarea { width: 80%; height: 100px; font-size: 16px; border: 2px solid #ff4500; border-radius: 10px; }
+        button { padding: 10px 20px; font-size: 16px; margin-top: 10px; background-color: #ff4500; color: white; border: none; border-radius: 10px; cursor: pointer; }
+        button:hover { background-color: #ff6347; }
+        h1 { color: #ff4500; }
+        p { color: #4682b4; }
+        #congratsPopup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ff4500;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 24px;
+            animation: popup 1s ease-in-out;
+        }
+        @keyframes popup {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Identical Cars  Game - Memory Reference</h1>
+    <p>Write Python code to move both cars. Ensure both cars use the same memory reference!</p>
+    <!-- SHORT DESCRIPTION ABOUT TOPIC -->
+    <p>When you assign a list to another variable, both variables point to the same memory location. This means that changing one variable will also change the other. In this game, you need to move both cars to the goal by using the same memory reference.</p>
+    <p>Write Python code to move both cars to the right. Use the variable <code>carAX</code> to move the blue car and <code>carBX</code> to move the red car. Ensure that both cars reach the goal by using the same memory reference.</p>
+    <pre style="background-color: #fffacd; padding: 10px; border-radius: 10px;">
+# Example:
+carBX = carAX  # Same memory reference
+carAX[0] += 10  # Move both cars
+    </pre>
+    <textarea id="codeInput" placeholder="Code here..."></textarea><br>
+    <button id="runButton" onclick="runPythonCode()">Run Code</button>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <p id="message"></p>
+    <div id="congratsPopup">Both cars reached the goal using the same variable! You win!</div>
+
+    <script>
+        let carAX = [50];
+        let carBX = [50];
+        const goalX = 550;
+        let message = "";
+
+        async function runPythonCode() {
+            let code = document.getElementById("codeInput").value;
+            let runButton = document.getElementById("runButton");
+            runButton.innerText = "Running...";
+            runButton.disabled = true;
+
+            try {
+                let pyodide = await loadPyodide();
+
+                // Define JavaScript variables in Python
+                pyodide.globals.set("carAX", carAX);
+                pyodide.globals.set("carBX", carBX);
+                //  check if carBX = carAX is used in the code
+                if (code.includes("carBX = carAX")) {
+                    carBX = carAX;
+                }
+                
+              
+                // Run Python code
+                await pyodide.runPythonAsync(code);
+
+                // Get updated values from Python
+                carAX = Array.from(pyodide.globals.get("carAX"));
+                carBX = Array.from(pyodide.globals.get("carBX"));
+
+              
+               
+                // Check if both cars reach the goal and share the same memory reference
+                if (carAX[0] >= goalX && carBX[0] >= goalX) {
+                    if (!code.includes("carBX = carAX")) {
+                        message = "You must use 'carBX = carAX' to share memory!Try again";
+                        document.getElementById("message").innerText = message;
+                        return;
+                    }
+                 
+                  
+                        message = "Both cars reached the goal using the same variable!";
+                        showCongratsPopup();
+                    
+                } else {
+                    message = "Cars moved, but they didn't reach the goal. Try again!";
+                }
+            } catch (error) {
+                message = "Error in code: " + error.message;
+            } finally {
+                runButton.innerText = "Run Code";
+                runButton.disabled = false;
+            }
+            drawGame();
+        }
+
+        function drawGame() {
+            const canvas = document.getElementById("gameCanvas");
+            const ctx = canvas.getContext("2d");
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw goal area
+            ctx.fillStyle = "yellow";
+            ctx.fillRect(goalX, 100, 40, 200);
+
+            // Draw car A
+            ctx.fillStyle = "blue";
+            ctx.fillRect(carAX[0], 150, 30, 20);
+           
+
+            // Draw car B
+            ctx.fillStyle = "red";
+            ctx.fillRect(carBX[0], 250, 30, 20);
+          
+            document.getElementById("message").innerText = message;
+        }
+
+        function showCongratsPopup() {
+            const popup = document.getElementById("congratsPopup");
+            popup.style.display = "block";
+            setTimeout(() => {
+                popup.style.display = "none";
+            }, 3000);
+        }
+
+        drawGame();
+    </script>
+</body>
+</html>
