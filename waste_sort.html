@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Sorting Challenge</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <style>
+        body { 
+            text-align: center; 
+            font-family: 'Comic Sans MS', cursive, sans-serif; 
+            background-color: #f0f8ff; 
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        h1 { 
+            color: #ff4500; 
+        }
+        p { 
+            color: #4682b4; 
+        }
+        #waste-list {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .waste-container {
+            border: 5px solid #7a3a0cdf;
+            padding: 10px;
+            width: 40%;
+            min-height: 200px;
+        }
+        .waste-item {
+            background-color: #fffacd;
+            margin: 5px;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        #code-input {
+            width: 80%; 
+            height: 150px;
+            font-size: 16px; 
+            border: 2px solid #ff4500; 
+            border-radius: 10px;
+            font-family: monospace;
+        }
+        #run-button {
+            padding: 10px 20px; 
+            font-size: 16px; 
+            margin-top: 10px; 
+            background-color: #ff4500; 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer;
+        }
+        #run-button:hover { 
+            background-color: #ff6347; 
+        }
+        #result-message {
+            margin: 20px 0;
+            font-weight: bold;
+            color: #4682b4;
+        }
+        .degradable, .non-degradable {
+            background-color: #98fb98;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Waste Sorting Challenge</h1>
+        <p>Use Python list operators to sort waste into Degradable and Non-Degradable categories in ascending order for each!</p>
+        <pre style="background-color: #fffacd; padding: 10px; border-radius: 10px; text-align: left;">
+            <ul>
+                <li>Initialize an empty list for degradable waste: <code>degradable = []</code></li>
+                <li>Initialize an empty list for non-degradable waste: <code>non_degradable = []</code></li>
+                <li>Add 'apple' to the degradable waste list: <code>degradable.append('apple')</code></li>
+                <li>Add 'plastic bottle' to the non-degradable waste list: <code>non_degradable.append('plastic bottle')</code></li>
+                <li>Add 'styrofoam' to the non-degradable waste list: <code>non_degradable.append('styrofoam')</code></li>
+                <li>Add 'banana peel' to the degradable waste list: <code>degradable.append('banana peel')</code></li>
+                <li>Sort the degradable waste list: <code>degradable.sort()</code> (e.g., <code>['apple', 'banana peel']</code>)</li>
+                <li>Sort the non-degradable waste list: <code>non_degradable.sort()</code> (e.g., <code>['plastic bottle', 'styrofoam']</code>)</li>
+            </ul>
+        </pre>
+        <div id="waste-list">
+            <div id="unsorted-waste" class="waste-container">
+                <h3>Unsorted Waste</h3>
+            </div>
+            <div id="degradable-waste" class="waste-container">
+                <h3>Degradable Waste</h3>
+            </div>
+            <div id="non-degradable-waste" class="waste-container">
+                <h3>Non-Degradable Waste</h3>
+            </div>
+        </div>
+
+        <textarea id="code-input" placeholder="Write Python code to sort the waste."></textarea>
+        <br>
+        <button id="run-button">Sort Waste</button>
+        <p id="result-message"></p>
+    </div>
+
+    <script>
+        // Waste items for sorting with their respective emojis for display
+        const wasteItems = [
+            { name: 'apple', emoji: '🍎' },
+            { name: 'plastic bottle', emoji: '🍼' },
+            { name: 'banana peel', emoji: '🍌' },
+            { name: 'styrofoam', emoji: '📦' },
+            { name: 'cardboard', emoji: '📦' },
+            { name: 'aluminum can', emoji: '🥫' },
+            { name: 'orange peel', emoji: '🍊' },
+            { name: 'glass bottle', emoji: '🍾' }
+        ];
+
+        // Predefined correct sorting
+        const correctDegradable = ['apple', 'banana peel', 'cardboard', 'orange peel'].sort();
+        const correctNonDegradable = ['plastic bottle', 'styrofoam', 'aluminum can', 'glass bottle'].sort();
+
+        // Initialize waste items in unsorted container
+        const unsortedContainer = document.getElementById('unsorted-waste');
+        wasteItems.forEach(item => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'waste-item';
+            itemElement.textContent = `${item.emoji} ${item.name}`;
+            unsortedContainer.appendChild(itemElement);
+        });
+
+        document.getElementById('run-button').addEventListener('click', async () => {
+            const sortButton = document.getElementById('run-button');
+            const codeInput = document.getElementById('code-input').value;
+            const resultMessage = document.getElementById('result-message');
+            const degradableContainer = document.getElementById('degradable-waste');
+            const nonDegradableContainer = document.getElementById('non-degradable-waste');
+
+            // Clear previous sorting
+            degradableContainer.innerHTML = '<h3>Degradable Waste</h3>';
+            nonDegradableContainer.innerHTML = '<h3>Non-Degradable Waste</h3>';
+            sortButton.disabled = true;
+            sortButton.textContent = 'Sorting...';
+
+            try {
+                // Load Pyodide
+                let pyodide = await loadPyodide();
+
+                // Run the Python code
+                pyodide.runPython(`
+# Global variables for waste sorting
+waste = ${JSON.stringify(wasteItems.map(item => item.name))}
+degradable = []
+non_degradable = []
+${codeInput}
+                `);
+
+                // Retrieve sorted lists
+                const degradable = pyodide.globals.get('degradable').toJs();
+                const nonDegradable = pyodide.globals.get('non_degradable').toJs();
+
+                // Display sorted items with emojis
+                degradable.forEach(item => {
+                    const emoji = wasteItems.find(w => w.name === item)?.emoji || '';
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'waste-item';
+                    itemElement.textContent = `${emoji} ${item}`;
+                    degradableContainer.appendChild(itemElement);
+                });
+
+                nonDegradable.forEach(item => {
+                    const emoji = wasteItems.find(w => w.name === item)?.emoji || '';
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'waste-item';
+                    itemElement.textContent = `${emoji} ${item}`;
+                    nonDegradableContainer.appendChild(itemElement);
+                });
+
+                // Check if sorting is correct and is in ascending order
+                const isCorrectDegradable = JSON.stringify(degradable) === JSON.stringify(correctDegradable);
+                const isCorrectNonDegradable = JSON.stringify(nonDegradable) === JSON.stringify(correctNonDegradable);
+                const boxes = document.querySelectorAll('.waste-container');
+
+                if (isCorrectDegradable && isCorrectNonDegradable) {
+                    // border color for correct sorting
+                    boxes.forEach(box => box.style.borderColor = '#25673e');
+                
+                    resultMessage.textContent = 'Congratulations! You sorted the waste correctly!';
+                    resultMessage.style.color = '#ff4500';
+                } else {
+                    resultMessage.textContent = 'Not quite right. Try again!';
+                    resultMessage.style.color = '#4682b4';
+                }
+            } catch (error) {
+                resultMessage.textContent = `Error: ${error}`;
+                resultMessage.style.color = '#4682b4';
+            } finally {
+                sortButton.disabled = false;
+                sortButton.textContent = 'Sort Waste';
+            }
+        });
+    </script>
+</body>
+</html>

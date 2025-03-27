@@ -87,6 +87,10 @@ carAX[0] += 10  # Move both cars
                     if (!code.includes("carBX = carAX")) {
                         message = "You must use 'carBX = carAX' to share memory!Try again";
                         document.getElementById("message").innerText = message;
+                        // return to original position
+                        carAX = [50];
+                        carBX = [50];
+                        drawGame();
                         return;
                     }
                  
