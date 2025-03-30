@@ -80,12 +80,16 @@
             <ul>
                 <li>Initialize an empty list for degradable waste: <code>degradable = []</code></li>
                 <li>Initialize an empty list for non-degradable waste: <code>non_degradable = []</code></li>
+                <li>Remove 'apple' from the waste list: <code>waste.remove('apple')</code></li>
                 <li>Add 'apple' to the degradable waste list: <code>degradable.append('apple')</code></li>
+                <li>Remove 'plastic bottle' from the waste list: <code>waste.remove('plastic bottle')</code></li>
                 <li>Add 'plastic bottle' to the non-degradable waste list: <code>non_degradable.append('plastic bottle')</code></li>
+                <li>Remove 'styrofoam' from the waste list: <code>waste.remove('styrofoam')</code></li>
                 <li>Add 'styrofoam' to the non-degradable waste list: <code>non_degradable.append('styrofoam')</code></li>
+                <li>Remove 'banana peel' from the waste list: <code>waste.remove('banana peel')</code></li>
                 <li>Add 'banana peel' to the degradable waste list: <code>degradable.append('banana peel')</code></li>
-                <li>Sort the degradable waste list: <code>degradable.sort()</code> (e.g., <code>['apple', 'banana peel']</code>)</li>
-                <li>Sort the non-degradable waste list: <code>non_degradable.sort()</code> (e.g., <code>['plastic bottle', 'styrofoam']</code>)</li>
+                <li>Sort the degradable waste list: <code>degradable.sort()</code></li>
+                <li>Sort the non-degradable waste list: <code>non_degradable.sort()</code></li>
             </ul>
         </pre>
         <div id="waste-list">
@@ -161,7 +165,9 @@ ${codeInput}
                 // Retrieve sorted lists
                 const degradable = pyodide.globals.get('degradable').toJs();
                 const nonDegradable = pyodide.globals.get('non_degradable').toJs();
-
+                const waste = pyodide.globals.get('waste').toJs();
+                
+            
                 // Display sorted items with emojis
                 degradable.forEach(item => {
                     const emoji = wasteItems.find(w => w.name === item)?.emoji || '';
@@ -178,13 +184,24 @@ ${codeInput}
                     itemElement.textContent = `${emoji} ${item}`;
                     nonDegradableContainer.appendChild(itemElement);
                 });
+                // clear all waste items from unsorted container
+                unsortedContainer.innerHTML = '<h3>Unsorted Waste</h3>';
+                // Display unsorted items with emojis
 
+                waste.forEach(item => {
+                    const emoji = wasteItems.find(w => w.name === item)?.emoji || '';
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'waste-item';
+                    itemElement.textContent = `${emoji} ${item}`;
+                    unsortedContainer.appendChild(itemElement);
+                });
                 // Check if sorting is correct and is in ascending order
                 const isCorrectDegradable = JSON.stringify(degradable) === JSON.stringify(correctDegradable);
                 const isCorrectNonDegradable = JSON.stringify(nonDegradable) === JSON.stringify(correctNonDegradable);
+                const isEverthingRemoved = waste.length === 0;
                 const boxes = document.querySelectorAll('.waste-container');
 
-                if (isCorrectDegradable && isCorrectNonDegradable) {
+                if (isCorrectDegradable && isCorrectNonDegradable && isEverthingRemoved) {
                     // border color for correct sorting
                     boxes.forEach(box => box.style.borderColor = '#25673e');
                 
